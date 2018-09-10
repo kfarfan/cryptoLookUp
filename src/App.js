@@ -12,6 +12,7 @@ constructor(props){
   }
   this.check = this.check.bind(this);
   this.searched = this.searched.bind(this);
+  this.deleteItem = this.deleteItem.bind(this);
 }
 
 
@@ -23,7 +24,7 @@ componentDidMount () {
 
   fetch(`https://www.worldcoinindex.com/apiservice/getmarkets?key=EQG0HJ9aCV8A7igInbBnaeSaJy0FBz&fiat=btc`)
   .then(response => response.json())
-  .then(result => this.setSearch(result))
+  .then(result => this.setSearch(result.Markets[0]))
   .catch(error => error);
 }
 
@@ -44,32 +45,44 @@ searchedFor = (searchTerm) => {
   }
 }
 
+deleteItem (id) {
+  const updated = this.state.result.filter(item => item.Name !== id);
+  this.setState({result : {...this.state.result, Name: updated}});
+}
+
 
   render() {
-    const { result, searchTerm} = this.state;
+    const { result, searchTerm } = this.state;
     return (
       
-      <div className="App">
-
+      <div className="page">
       <input 
       type="text"
       value={searchTerm}
       onChange={this.searched}
+      placeholder="Crypto search"
       />
+      <div className="interactions">
       { result ?
       <div>
-        {result.Markets[0].filter(this.searchedFor(searchTerm)).map(item => {
+        {result.filter(this.searchedFor(searchTerm)).map(item => {
           return (
-            <div className='table' key={item.Name+1}>
+            <div className='table' key={item.Name}>
               <div className='table-row'>
-                <span>Name: {item.Name}</span>
-                <span style={{width: `40%`}}>Price: {item.Price}</span>
+                <span style={{width: `40%`}}>Name: {item.Name}</span>
+                <span style={{width: `20%`}}>Price: {item.Price}</span>
+                <span>
+                  <button onClick={() => this.deleteItem(item.Name)}>
+                    Delete
+                  </button>
+                </span>
               </div>
             </div>
           )
         })}
 
       </div> : null}
+      </div>
       </div>
     );
   }
